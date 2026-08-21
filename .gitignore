@@ -1,0 +1,6 @@
+data/
+output/
+.Rproj.user/
+R/.RData
+R/.Rhistory
+R/prog.Rproj
