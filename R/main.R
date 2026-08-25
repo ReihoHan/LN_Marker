@@ -272,7 +272,6 @@ for (i in df_define$model1[!is.na(df_define$model1)]) {
                 filter(Model=="AIM"|Scenario_SSP=="SSP2_LN"))
 }
 
-
 #Other Data import--------------------------------------------------------
 
 df_AR6 <- read.csv("../data/AR6_Scenario_Database.csv", header=T)%>%
@@ -725,6 +724,14 @@ f_fig_bar <- function(v_name, v_area, v_point) {
   dev.off()
 }
 
+f_tab <- function(v_name, v_var) {
+  df_snap%>%
+    filter(Variable %in% v_var, Region=="World")%>%
+    pivot_wider(names_from = Year, values_from = Value)%>%
+    arrange(Variable)%>%
+    write.csv(paste(v_path["tab_main"],"/",v_name,".csv",sep=""), row.names = FALSE )
+}
+
 #Plot------------------------------------
 
 f_fig_line1("GHG_Emissions",df_variable$GHG[!is.na(df_variable$GHG)])
@@ -756,5 +763,7 @@ f_fig_bar("Primary_Energy",df_variable$primary_energy[!is.na(df_variable$primary
 f_fig_bar("Land_Cover",df_variable$land_cover[!is.na(df_variable$land_cover)],NA)
 f_fig_bar("Agricultural_Production",df_variable$agricultural_production[!is.na(df_variable$agricultural_production)],"Agricultural Production")
 
-
+f_tab("GHG",df_variable$GHG[!is.na(df_variable$GHG)])
+f_tab("CO2",df_variable$CO2_sector[!is.na(df_variable$CO2_sector)])
+f_tab("SDG",df_variable$sdg[!is.na(df_variable$sdg)])
 
