@@ -668,6 +668,25 @@ f_fig_line5 <- function(v_name, v_var) {
   print(p)
   dev.off()
 }
+f_fig_line6 <- function(v_name, v_var, v_nrow=1) {
+  df_fig1<-filter(df_snap,Variable %in% v_var,
+                  Scenario=="LN", Region=="World")%>%
+    mutate(Variable = factor(Variable,levels=v_var),
+           Model = factor(Model,levels=df_define$model2[!is.na(df_define$model2)]))
+  p<-ggplot() +
+    geom_point(data = df_dummy, aes(x=Year,y=Value), alpha=0)+
+    geom_line(data=df_fig1,aes(x=Year,y=Value,group=Model,color=Model),linewidth=0.8,alpha=0.9)+
+    facet_wrap(Variable~Unit,scales = "free",nrow=v_nrow) +
+    scale_x_discrete(breaks=c(df_define$year1[!is.na(df_define$year1)]))+
+    scale_colour_manual(values=c(df_define$color_model)) +
+    ylab("") + xlab("Year") + labs(color="Model (LN scenario)") + theme1 +
+    theme(legend.title = element_text(size = 16), legend.text = element_text(size = 14))
+  v_ncol <- ceiling(length(v_var)/v_nrow)
+  v_height <- if (v_nrow==2) 3200 else 1800
+  png(paste(v_path["fig_main"],"/",v_name,"_model_line.png",sep=""), width = v_ncol*1800+900, height = v_height,res = 300)
+  print(p)
+  dev.off()
+}
 #area plot
 f_fig_area <- function(v_name, v_area, v_line) {
 df_fig1<-df_snap%>%
@@ -725,46 +744,6 @@ f_fig_bar <- function(v_name, v_area, v_point) {
   dev.off()
 }
 
-#line plot: AIM-Hub scenario comparison (same model, different scenarios)
-f_fig_line_scenario <- function(v_name, v_var) {
-  df_fig1<-filter(df_snap,Variable %in% v_var,
-                  Model=="AIM", Region=="World",
-                  Scenario_SSP %in% df_define$marker_scenario[!is.na(df_define$marker_scenario)])%>%
-    mutate(Variable = factor(Variable,levels=v_var),
-           Scenario_SSP = factor(Scenario_SSP,levels=df_define$marker_scenario[!is.na(df_define$marker_scenario)] ),
-           Scenario = factor(Scenario,levels=df_define$scenario1[!is.na(df_define$scenario1)]))
-  p<-ggplot() +
-    geom_point(data = df_dummy, aes(x=Year,y=Value), alpha=0)+
-    geom_line(data=df_fig1,aes(x=Year,y=Value,group=Scenario_SSP,color=Scenario),linewidth=0.8,alpha=0.9)+
-    facet_wrap(Variable~Unit,scales = "free",nrow=1) +
-    scale_x_discrete(breaks=c(df_define$year1[!is.na(df_define$year1)]))+
-    scale_colour_manual(values=c(df_define$color_scenario)) +
-    ylab("") + xlab("Year") + labs(color="Scenario (AIM-Hub)") + theme1
-  png(paste(v_path["fig_main"],"/",v_name,"_scenario_line.png",sep=""), width = length(v_var)*1800+450, height = 1800,res = 300)
-  print(p)
-  dev.off()
-}
-#line plot: LN scenario comparison across models (same scenario, different models)
-f_fig_line_model <- function(v_name, v_var, v_nrow=1) {
-  df_fig1<-filter(df_snap,Variable %in% v_var,
-                  Scenario=="LN", Region=="World")%>%
-    mutate(Variable = factor(Variable,levels=v_var),
-           Model = factor(Model,levels=df_define$model2[!is.na(df_define$model2)]))
-  p<-ggplot() +
-    geom_point(data = df_dummy, aes(x=Year,y=Value), alpha=0)+
-    geom_line(data=df_fig1,aes(x=Year,y=Value,group=Model,color=Model),linewidth=0.8,alpha=0.9)+
-    facet_wrap(Variable~Unit,scales = "free",nrow=v_nrow) +
-    scale_x_discrete(breaks=c(df_define$year1[!is.na(df_define$year1)]))+
-    scale_colour_manual(values=c(df_define$color_model)) +
-    ylab("") + xlab("Year") + labs(color="Model (LN scenario)") + theme1 +
-    theme(legend.title = element_text(size = 16), legend.text = element_text(size = 14))
-  v_ncol <- ceiling(length(v_var)/v_nrow)
-  v_height <- if (v_nrow==2) 3200 else 1800
-  png(paste(v_path["fig_main"],"/",v_name,"_model_line.png",sep=""), width = v_ncol*1800+900, height = v_height,res = 300)
-  print(p)
-  dev.off()
-}
-
 #Plot------------------------------------
 
 f_fig_line1("GHG_Emissions",df_variable$GHG[!is.na(df_variable$GHG)])
@@ -777,7 +756,7 @@ f_fig_line2("Final_Energy","Final Energy")
 f_fig_line2("Agricultural_Production","Agricultural Production")
 f_fig_line3("Food_Availability",df_variable$food[!is.na(df_variable$food)])
 f_fig_line4("Economic_indicator",df_variable$economic_impact[!is.na(df_variable$economic_impact)])
-
+f_fig_line6("CDR_CCS",df_variable$CDR_CCS[!is.na(df_variable$CDR_CCS)], v_nrow=2)
 
 f_fig_area("CO2",df_variable$CO2_sector[!is.na(df_variable$CO2_sector)],"Emissions|CO2")
 f_fig_area("CDR",df_variable$CDR[!is.na(df_variable$CDR)],"Carbon Removal")
@@ -796,13 +775,6 @@ f_fig_bar("Primary_Energy",df_variable$primary_energy[!is.na(df_variable$primary
 f_fig_bar("Land_Cover",df_variable$land_cover[!is.na(df_variable$land_cover)],NA)
 f_fig_bar("Agricultural_Production",df_variable$agricultural_production[!is.na(df_variable$agricultural_production)],"Agricultural Production")
 
-f_fig_line_scenario("CCS_cumulative","Carbon Capture|Geological Storage|cumulative")
-f_fig_line_model("CDR_CCS",df_variable$CDR_CCS[!is.na(df_variable$CDR_CCS)], v_nrow=2)
-f_fig_line_model("CCS_cumulative","Carbon Capture|Geological Storage|cumulative")
-f_fig_line_model("CDR_annual","Carbon Removal")
-f_fig_line_model("CDR_cumulative","Carbon Removal|cumulative")
-f_fig_line_model("Carbon_Price","Price|Carbon")
-f_fig_line_model("CO2_Emissions","Emissions|CO2")
 
 
 
