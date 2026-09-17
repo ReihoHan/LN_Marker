@@ -540,7 +540,7 @@ f_fig_line1 <- function(v_name, v_var) {
     scale_x_discrete(breaks=c(df_define$year1[!is.na(df_define$year1)],df_define$ar6_database[!is.na(df_define$ar6_database)]))+
     scale_colour_manual(values=c(df_define$color_scenario)) +
     ylab("") + xlab("Year") + theme1 
-  png(paste(v_path["fig_main"],"/",v_name,"_line.png",sep=""), width = length(v_var)/2*1800+450, height = 3200,res = 300)
+  png(paste(v_path["fig_main"],"/",v_name,"_line.png",sep=""), width = length(v_var)/2*1400+450, height = 3200,res = 300)
   print(p)
   dev.off()
 }
@@ -659,11 +659,11 @@ f_fig_line5 <- function(v_name, v_var) {
     geom_ribbon(data=df_fig3,aes(x=Year,ymin=min,ymax=max, group=Scenario,),alpha=0.1,fill=df_define$color_scenario["LN"]) +
 #    geom_linerange(data=df_fig4,aes(x=Category,ymin=lo5,ymax=up5, group=Category,color=Category),alpha=0.4,linewidth=5) +  
 #    geom_linerange(data=df_fig4,aes(x=Category,ymin=lo25,ymax=up25, group=Category,color=Category),alpha=0.5,linewidth=5) +  
-    facet_wrap(Variable~Unit,scales = "free",nrow=3) +
+    facet_wrap(Variable~Unit,scales = "free",nrow=2) +
     scale_x_discrete(breaks=c(df_define$year1[!is.na(df_define$year1)],df_define$ar6_database[!is.na(df_define$ar6_database)]))+
     scale_colour_manual(values=c(df_define$color_scenario)) +
     ylab("") + xlab("Year") + theme1 
-  png(paste(v_path["fig_main"],"/",v_name,"_line.png",sep=""), width = length(v_var)/3*2400+800, height = 5200,res = 300)
+  png(paste(v_path["fig_main"],"/",v_name,"_line.png",sep=""), width = length(v_var)/3*3400+800, height = 4600,res = 300)
   print(p)
   dev.off()
 }
@@ -706,7 +706,7 @@ p<-ggplot() +
   scale_x_discrete(breaks=c(df_define$year1[!is.na(df_define$year1)]))+
   ylab("") + xlab("") + labs(fill = "Category", linetype = "") + theme1 +theme(legend.position="bottom")+guides(fill = guide_legend(ncol = 2),linetype = guide_legend(ncol = 1))
   scale_x_discrete(breaks=df_define$year1[!is.na(df_define$year1)])
-png(paste(v_path["fig_main"],"/",v_name,"area_.png",sep=""), width = length(df_define$marker_scenario[!is.na(df_define$marker_scenario)])*800, height = 2400+length(v_area)*20,res = 300)
+png(paste(v_path["fig_main"],"/",v_name,"area_.png",sep=""), width = length(df_define$marker_scenario[!is.na(df_define$marker_scenario)])*700, height = 2400+length(v_area)*20,res = 300)
 print(p)
 dev.off()
 }
@@ -757,7 +757,6 @@ f_fig_line1("GHG_Emissions",df_variable$GHG[!is.na(df_variable$GHG)])
 f_fig_line1("Air_Pollutant",df_variable$air_pollutant[!is.na(df_variable$air_pollutant)])
 f_fig_line1("CDR_CCS",df_variable$CDR_CCS[!is.na(df_variable$CDR_CCS)])  
 f_fig_line1("Air_Pollutant_Ratio",df_variable$air_pollutant_energy_ratio[!is.na(df_variable$air_pollutant_energy_ratio)])  
-f_fig_line5("SDG",df_variable$sdg[!is.na(df_variable$sdg)])
 f_fig_line2("Primary_Energy","Primary Energy")
 f_fig_line2("Final_Energy","Final Energy")
 f_fig_line2("Agricultural_Production","Agricultural Production")
@@ -766,13 +765,15 @@ f_fig_line4("Economic_indicator",df_variable$economic_impact[!is.na(df_variable$
 f_fig_line6("CDR_CCS",df_variable$CDR_CCS[!is.na(df_variable$CDR_CCS)], v_nrow=2)
 
 f_fig_area("CO2",df_variable$CO2_sector[!is.na(df_variable$CO2_sector)],"Emissions|CO2")
+f_fig_line5("SDG",df_variable$sdg2[!is.na(df_variable$sdg2)])
+
+f_fig_area("CO2",df_variable$CO2_sector2[!is.na(df_variable$CO2_sector2)],"Emissions|CO2")
 f_fig_area("CDR",df_variable$CDR[!is.na(df_variable$CDR)],"Carbon Removal")
 f_fig_area("Final_Energy_Sector",df_variable$final_energy_sector[!is.na(df_variable$final_energy_sector)],"Final Energy")
 f_fig_area("Final_Energy_Source",df_variable$final_energy_source[!is.na(df_variable$final_energy_source)],"Final Energy")
 f_fig_area("Primary_Energy",df_variable$primary_energy[!is.na(df_variable$primary_energy)],"Primary Energy")
 f_fig_area("Land_Cover",df_variable$land_cover[!is.na(df_variable$land_cover)],NA)
 f_fig_area("Agricultural_Production",df_variable$agricultural_production[!is.na(df_variable$agricultural_production)],"Agricultural Production")
-
 
 f_fig_bar("CO2",df_variable$CO2_sector[!is.na(df_variable$CO2_sector)],"Emissions|CO2")
 f_fig_bar("CDR",df_variable$CDR[!is.na(df_variable$CDR)],"Carbon Removal")
