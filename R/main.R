@@ -272,7 +272,6 @@ for (i in df_define$model1[!is.na(df_define$model1)]) {
                 filter(Model=="AIM"|Scenario_SSP=="SSP2_LN"))
 }
 
-
 #Other Data import--------------------------------------------------------
 
 df_AR6 <- read.csv("../data/AR6_Scenario_Database.csv", header=T)%>%
@@ -541,7 +540,7 @@ f_fig_line1 <- function(v_name, v_var) {
     scale_x_discrete(breaks=c(df_define$year1[!is.na(df_define$year1)],df_define$ar6_database[!is.na(df_define$ar6_database)]))+
     scale_colour_manual(values=c(df_define$color_scenario)) +
     ylab("") + xlab("Year") + theme1 
-  png(paste(v_path["fig_main"],"/",v_name,"_line.png",sep=""), width = length(v_var)/2*1800+450, height = 3200,res = 300)
+  png(paste(v_path["fig_main"],"/",v_name,"_line.png",sep=""), width = length(v_var)/2*1400+450, height = 3200,res = 300)
   print(p)
   dev.off()
 }
@@ -660,11 +659,30 @@ f_fig_line5 <- function(v_name, v_var) {
     geom_ribbon(data=df_fig3,aes(x=Year,ymin=min,ymax=max, group=Scenario,),alpha=0.1,fill=df_define$color_scenario["LN"]) +
 #    geom_linerange(data=df_fig4,aes(x=Category,ymin=lo5,ymax=up5, group=Category,color=Category),alpha=0.4,linewidth=5) +  
 #    geom_linerange(data=df_fig4,aes(x=Category,ymin=lo25,ymax=up25, group=Category,color=Category),alpha=0.5,linewidth=5) +  
-    facet_wrap(Variable~Unit,scales = "free",nrow=3) +
+    facet_wrap(Variable~Unit,scales = "free",nrow=2) +
     scale_x_discrete(breaks=c(df_define$year1[!is.na(df_define$year1)],df_define$ar6_database[!is.na(df_define$ar6_database)]))+
     scale_colour_manual(values=c(df_define$color_scenario)) +
     ylab("") + xlab("Year") + theme1 
-  png(paste(v_path["fig_main"],"/",v_name,"_line.png",sep=""), width = length(v_var)/3*2400+800, height = 5200,res = 300)
+  png(paste(v_path["fig_main"],"/",v_name,"_line.png",sep=""), width = length(v_var)/3*3400+800, height = 4600,res = 300)
+  print(p)
+  dev.off()
+}
+f_fig_line6 <- function(v_name, v_var, v_nrow=1) {
+  df_fig1<-filter(df_snap,Variable %in% v_var,
+                  Scenario=="LN", Region=="World")%>%
+    mutate(Variable = factor(Variable,levels=v_var),
+           Model = factor(Model,levels=df_define$model2[!is.na(df_define$model2)]))
+  p<-ggplot() +
+    geom_point(data = df_dummy, aes(x=Year,y=Value), alpha=0)+
+    geom_line(data=df_fig1,aes(x=Year,y=Value,group=Model,color=Model),linewidth=0.8,alpha=0.9)+
+    facet_wrap(Variable~Unit,scales = "free",nrow=v_nrow) +
+    scale_x_discrete(breaks=c(df_define$year1[!is.na(df_define$year1)]))+
+    scale_colour_manual(values=c(df_define$color_model)) +
+    ylab("") + xlab("Year") + labs(color="Model (LN scenario)") + theme1 +
+    theme(legend.title = element_text(size = 16), legend.text = element_text(size = 14))
+  v_ncol <- ceiling(length(v_var)/v_nrow)
+  v_height <- if (v_nrow==2) 3200 else 1800
+  png(paste(v_path["fig_main"],"/",v_name,"_model_line.png",sep=""), width = v_ncol*1800+900, height = v_height,res = 300)
   print(p)
   dev.off()
 }
@@ -688,7 +706,7 @@ p<-ggplot() +
   scale_x_discrete(breaks=c(df_define$year1[!is.na(df_define$year1)]))+
   ylab("") + xlab("") + labs(fill = "Category", linetype = "") + theme1 +theme(legend.position="bottom")+guides(fill = guide_legend(ncol = 2),linetype = guide_legend(ncol = 1))
   scale_x_discrete(breaks=df_define$year1[!is.na(df_define$year1)])
-png(paste(v_path["fig_main"],"/",v_name,"area_.png",sep=""), width = length(df_define$marker_scenario[!is.na(df_define$marker_scenario)])*800, height = 2400+length(v_area)*20,res = 300)
+png(paste(v_path["fig_main"],"/",v_name,"area_.png",sep=""), width = length(df_define$marker_scenario[!is.na(df_define$marker_scenario)])*700, height = 2400+length(v_area)*20,res = 300)
 print(p)
 dev.off()
 }
@@ -725,28 +743,37 @@ f_fig_bar <- function(v_name, v_area, v_point) {
   dev.off()
 }
 
+f_tab <- function(v_name, v_var) {
+  df_snap%>%
+    filter(Variable %in% v_var, Region=="World")%>%
+    pivot_wider(names_from = Year, values_from = Value)%>%
+    arrange(Variable)%>%
+    write.csv(paste(v_path["tab_main"],"/",v_name,".csv",sep=""), row.names = FALSE )
+}
+
 #Plot------------------------------------
 
 f_fig_line1("GHG_Emissions",df_variable$GHG[!is.na(df_variable$GHG)])
 f_fig_line1("Air_Pollutant",df_variable$air_pollutant[!is.na(df_variable$air_pollutant)])
 f_fig_line1("CDR_CCS",df_variable$CDR_CCS[!is.na(df_variable$CDR_CCS)])  
 f_fig_line1("Air_Pollutant_Ratio",df_variable$air_pollutant_energy_ratio[!is.na(df_variable$air_pollutant_energy_ratio)])  
-f_fig_line5("SDG",df_variable$sdg[!is.na(df_variable$sdg)])
 f_fig_line2("Primary_Energy","Primary Energy")
 f_fig_line2("Final_Energy","Final Energy")
 f_fig_line2("Agricultural_Production","Agricultural Production")
 f_fig_line3("Food_Availability",df_variable$food[!is.na(df_variable$food)])
 f_fig_line4("Economic_indicator",df_variable$economic_impact[!is.na(df_variable$economic_impact)])
-
+f_fig_line6("CDR_CCS",df_variable$CDR_CCS[!is.na(df_variable$CDR_CCS)], v_nrow=2)
 
 f_fig_area("CO2",df_variable$CO2_sector[!is.na(df_variable$CO2_sector)],"Emissions|CO2")
+f_fig_line5("SDG",df_variable$sdg2[!is.na(df_variable$sdg2)])
+
+f_fig_area("CO2",df_variable$CO2_sector2[!is.na(df_variable$CO2_sector2)],"Emissions|CO2")
 f_fig_area("CDR",df_variable$CDR[!is.na(df_variable$CDR)],"Carbon Removal")
 f_fig_area("Final_Energy_Sector",df_variable$final_energy_sector[!is.na(df_variable$final_energy_sector)],"Final Energy")
 f_fig_area("Final_Energy_Source",df_variable$final_energy_source[!is.na(df_variable$final_energy_source)],"Final Energy")
 f_fig_area("Primary_Energy",df_variable$primary_energy[!is.na(df_variable$primary_energy)],"Primary Energy")
 f_fig_area("Land_Cover",df_variable$land_cover[!is.na(df_variable$land_cover)],NA)
 f_fig_area("Agricultural_Production",df_variable$agricultural_production[!is.na(df_variable$agricultural_production)],"Agricultural Production")
-
 
 f_fig_bar("CO2",df_variable$CO2_sector[!is.na(df_variable$CO2_sector)],"Emissions|CO2")
 f_fig_bar("CDR",df_variable$CDR[!is.na(df_variable$CDR)],"Carbon Removal")
@@ -756,5 +783,8 @@ f_fig_bar("Primary_Energy",df_variable$primary_energy[!is.na(df_variable$primary
 f_fig_bar("Land_Cover",df_variable$land_cover[!is.na(df_variable$land_cover)],NA)
 f_fig_bar("Agricultural_Production",df_variable$agricultural_production[!is.na(df_variable$agricultural_production)],"Agricultural Production")
 
+f_tab("GHG",df_variable$GHG[!is.na(df_variable$GHG)])
+f_tab("CO2",df_variable$CO2_sector[!is.na(df_variable$CO2_sector)])
+f_tab("SDG",df_variable$sdg[!is.na(df_variable$sdg)])
 
 
